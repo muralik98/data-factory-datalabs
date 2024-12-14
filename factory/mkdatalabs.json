@@ -1,0 +1,9 @@
+{
+	"name": "mkdatalabs",
+	"location": "northeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "619bbfe3-a1d7-4bcc-905d-7a23b9f93f4f",
+		"tenantId": "f7914f76-501c-4a01-9677-9c39454c8f01"
+	}
+}
