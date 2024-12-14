@@ -13,8 +13,8 @@
 				"fileName": "sales_data.csv",
 				"fileSystem": "datafactory2"
 			},
-			"columnDelimiter": "",
-			"rowDelimiter": "",
+			"columnDelimiter": ",",
+			"rowDelimiter": "\n",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
