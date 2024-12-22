@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "DataflowDemo",
-				"type": "ExecuteDataFlow",
+				"name": "Get Metadata1",
+				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,15 +15,13 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"dataflow": {
-						"referenceName": "dataflowDemo",
-						"type": "DataFlowReference"
+					"dataset": {
+						"referenceName": "BookingFactDataSynapse",
+						"type": "DatasetReference"
 					},
-					"compute": {
-						"coreCount": 8,
-						"computeType": "General"
-					},
-					"traceLevel": "Fine"
+					"fieldList": [
+						"exists"
+					]
 				}
 			}
 		],
