@@ -118,7 +118,6 @@
 				"          booking_date = DataQualityChecks@AcceptedRecords@booking_date,",
 				"          amount = DataQualityChecks@AcceptedRecords@amount,",
 				"          currency = DataQualityChecks@AcceptedRecords@currency,",
-				"          property_location,",
 				"          timestamp = DataQualityChecks@AcceptedRecords@timestamp,",
 				"          stay_duration = DerivedColumns@stay_duration,",
 				"          booking_year = DerivedColumns@booking_year,",

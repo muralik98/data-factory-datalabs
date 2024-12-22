@@ -19,6 +19,9 @@
 						"referenceName": "dataflow1",
 						"type": "DataFlowReference"
 					},
+					"staging": {
+						"folderPath": "airbnbpipeline"
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
