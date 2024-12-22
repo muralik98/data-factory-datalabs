@@ -19,7 +19,19 @@
 					"name": "SynpaseForLookup"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "BookingFactDataSynapse",
+						"type": "DatasetReference"
+					},
+					"name": "SynapseFactsWrite",
+					"rejectedDataLinkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
 			"transformations": [
 				{
 					"name": "DataQualityChecks"
@@ -31,7 +43,10 @@
 					"name": "LookupSynapse"
 				},
 				{
-					"name": "alterRow1"
+					"name": "AlterRowForUpdate"
+				},
+				{
+					"name": "FinalColumns"
 				}
 			],
 			"scriptLines": [
@@ -91,7 +106,60 @@
 				"     pickup: 'first',",
 				"     desc(SynpaseForLookup@timestamp, true),",
 				"     broadcast: 'auto')~> LookupSynapse",
-				"LookupSynapse alterRow() ~> alterRow1"
+				"LookupSynapse alterRow(insertIf(isNull(SynpaseForLookup@booking_id)),",
+				"     insertIf(not(isNull(SynpaseForLookup@booking_id)))) ~> AlterRowForUpdate",
+				"AlterRowForUpdate select(mapColumn(",
+				"          booking_id = DataQualityChecks@AcceptedRecords@booking_id,",
+				"          property_id = DataQualityChecks@AcceptedRecords@property_id,",
+				"          customer_id = DataQualityChecks@AcceptedRecords@customer_id,",
+				"          owner_id = DataQualityChecks@AcceptedRecords@owner_id,",
+				"          check_in_date = DataQualityChecks@AcceptedRecords@check_in_date,",
+				"          check_out_date = DataQualityChecks@AcceptedRecords@check_out_date,",
+				"          booking_date = DataQualityChecks@AcceptedRecords@booking_date,",
+				"          amount = DataQualityChecks@AcceptedRecords@amount,",
+				"          currency = DataQualityChecks@AcceptedRecords@currency,",
+				"          property_location,",
+				"          timestamp = DataQualityChecks@AcceptedRecords@timestamp,",
+				"          stay_duration = DerivedColumns@stay_duration,",
+				"          booking_year = DerivedColumns@booking_year,",
+				"          booking_month = DerivedColumns@booking_month,",
+				"          full_address = DerivedColumns@full_address,",
+				"          city = DerivedColumns@city,",
+				"          country = DerivedColumns@country",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> FinalColumns",
+				"FinalColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          booking_id as string,",
+				"          property_id as string,",
+				"          customer_id as integer,",
+				"          owner_id as string,",
+				"          check_in_date as date,",
+				"          check_out_date as date,",
+				"          booking_date as timestamp,",
+				"          amount as double,",
+				"          currency as string,",
+				"          city as string,",
+				"          country as string,",
+				"          full_address as string,",
+				"          stay_duration as long,",
+				"          booking_year as integer,",
+				"          booking_month as integer,",
+				"          timestamp as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['booking_id'],",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> SynapseFactsWrite"
 			]
 		}
 	}
