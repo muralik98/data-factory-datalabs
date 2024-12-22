@@ -20,7 +20,11 @@
 						"type": "DataFlowReference"
 					},
 					"staging": {
-						"folderPath": "airbnbpipeline"
+						"linkedService": {
+							"referenceName": "AzureDataLakeStorage1",
+							"type": "LinkedServiceReference"
+						},
+						"folderPath": "airbnbpipeline/customer_archive"
 					},
 					"compute": {
 						"coreCount": 8,
