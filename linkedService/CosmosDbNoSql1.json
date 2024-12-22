@@ -1,0 +1,12 @@
+{
+	"name": "CosmosDbNoSql1",
+	"properties": {
+		"annotations": [],
+		"type": "CosmosDb",
+		"typeProperties": {
+			"accountEndpoint": "https://mkdatalabs-airbnbpipeline.documents.azure.com:443/",
+			"database": "airbnb"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/linkedservices"
+}

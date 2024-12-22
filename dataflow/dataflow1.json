@@ -1,0 +1,165 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "BookingDataCosmos",
+						"type": "DatasetReference"
+					},
+					"name": "BookingData"
+				},
+				{
+					"dataset": {
+						"referenceName": "BookingFactDataSynapse",
+						"type": "DatasetReference"
+					},
+					"name": "SynpaseForLookup"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "BookingFactDataSynapse",
+						"type": "DatasetReference"
+					},
+					"name": "SynapseFactsWrite",
+					"rejectedDataLinkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "DataQualityChecks"
+				},
+				{
+					"name": "DerivedColumns"
+				},
+				{
+					"name": "LookupSynapse"
+				},
+				{
+					"name": "AlterRowForUpdate"
+				},
+				{
+					"name": "FinalColumns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          booking_id as string,",
+				"          property_id as string,",
+				"          customer_id as integer,",
+				"          owner_id as string,",
+				"          check_in_date as string,",
+				"          check_out_date as string,",
+				"          booking_date as string,",
+				"          amount as double,",
+				"          currency as string,",
+				"          property_location as (city as string, country as string),",
+				"          timestamp as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     enableChangeFeed: true,",
+				"     changeFeedStartFromTheBeginning: false,",
+				"     format: 'document',",
+				"     systemColumns: false) ~> BookingData",
+				"source(output(",
+				"          booking_id as string,",
+				"          property_id as string,",
+				"          customer_id as integer,",
+				"          owner_id as string,",
+				"          check_in_date as date,",
+				"          check_out_date as date,",
+				"          booking_date as timestamp,",
+				"          amount as double,",
+				"          currency as string,",
+				"          city as string,",
+				"          country as string,",
+				"          full_address as string,",
+				"          stay_duration as long,",
+				"          booking_year as integer,",
+				"          booking_month as integer,",
+				"          timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     staged: true) ~> SynpaseForLookup",
+				"BookingData split(check_out_date<check_in_date,",
+				"     disjoint: true) ~> DataQualityChecks@(BadRecords, AcceptedRecords)",
+				"DataQualityChecks@AcceptedRecords derive(stay_duration = toTimestamp(check_out_date) - toTimestamp(check_in_date),",
+				"          booking_year = year(toTimestamp(booking_date)),",
+				"          booking_month = month(toTimestamp(booking_date)),",
+				"          full_address = concat( property_location.city, ',',  property_location.country)\r",
+				",",
+				"          city = property_location.city,",
+				"          country = property_location.country) ~> DerivedColumns",
+				"DerivedColumns, SynpaseForLookup lookup(DataQualityChecks@AcceptedRecords@booking_id == SynpaseForLookup@booking_id,",
+				"     multiple: false,",
+				"     pickup: 'first',",
+				"     desc(SynpaseForLookup@timestamp, true),",
+				"     broadcast: 'auto')~> LookupSynapse",
+				"LookupSynapse alterRow(insertIf(isNull(SynpaseForLookup@booking_id)),",
+				"     insertIf(not(isNull(SynpaseForLookup@booking_id)))) ~> AlterRowForUpdate",
+				"AlterRowForUpdate select(mapColumn(",
+				"          booking_id = DataQualityChecks@AcceptedRecords@booking_id,",
+				"          property_id = DataQualityChecks@AcceptedRecords@property_id,",
+				"          customer_id = DataQualityChecks@AcceptedRecords@customer_id,",
+				"          owner_id = DataQualityChecks@AcceptedRecords@owner_id,",
+				"          check_in_date = DataQualityChecks@AcceptedRecords@check_in_date,",
+				"          check_out_date = DataQualityChecks@AcceptedRecords@check_out_date,",
+				"          booking_date = DataQualityChecks@AcceptedRecords@booking_date,",
+				"          amount = DataQualityChecks@AcceptedRecords@amount,",
+				"          currency = DataQualityChecks@AcceptedRecords@currency,",
+				"          timestamp = DataQualityChecks@AcceptedRecords@timestamp,",
+				"          stay_duration = DerivedColumns@stay_duration,",
+				"          booking_year = DerivedColumns@booking_year,",
+				"          booking_month = DerivedColumns@booking_month,",
+				"          full_address = DerivedColumns@full_address,",
+				"          city = DerivedColumns@city,",
+				"          country = DerivedColumns@country",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> FinalColumns",
+				"FinalColumns sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          booking_id as string,",
+				"          property_id as string,",
+				"          customer_id as integer,",
+				"          owner_id as string,",
+				"          check_in_date as date,",
+				"          check_out_date as date,",
+				"          booking_date as timestamp,",
+				"          amount as double,",
+				"          currency as string,",
+				"          city as string,",
+				"          country as string,",
+				"          full_address as string,",
+				"          stay_duration as long,",
+				"          booking_year as integer,",
+				"          booking_month as integer,",
+				"          timestamp as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['booking_id'],",
+				"     format: 'table',",
+				"     staged: true,",
+				"     allowCopyCommand: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> SynapseFactsWrite"
+			]
+		}
+	}
+}
