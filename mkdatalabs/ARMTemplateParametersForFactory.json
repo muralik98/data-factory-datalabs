@@ -4,6 +4,27 @@
 	"parameters": {
 		"factoryName": {
 			"value": "mkdatalabs"
+		},
+		"AzureSynapseAnalytics1_password": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://mkdatalabsairbnbpipeline.dfs.core.windows.net/"
+		},
+		"AzureSynapseAnalytics1_properties_typeProperties_server": {
+			"value": "mkdatalabs-airbnb.sql.azuresynapse.net"
+		},
+		"AzureSynapseAnalytics1_properties_typeProperties_database": {
+			"value": "airbnb"
+		},
+		"AzureSynapseAnalytics1_properties_typeProperties_userName": {
+			"value": "mkdatalabs"
+		},
+		"CosmosDbNoSql1_properties_typeProperties_accountEndpoint": {
+			"value": "https://mkdatalabs-airbnbpipeline.documents.azure.com:443/"
+		},
+		"CosmosDbNoSql1_properties_typeProperties_database": {
+			"value": "airbnb"
 		}
 	}
 }
