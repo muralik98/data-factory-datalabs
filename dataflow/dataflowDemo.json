@@ -5,19 +5,18 @@
 		"typeProperties": {
 			"sources": [
 				{
+					"name": "sourceSales"
+				},
+				{
 					"dataset": {
-						"referenceName": "Sourcesales_data",
+						"referenceName": "BookingFactDataSynapse",
 						"type": "DatasetReference"
 					},
-					"name": "sourceSales"
+					"name": "source1"
 				}
 			],
 			"sinks": [
 				{
-					"dataset": {
-						"referenceName": "CosmosDbNoSqlContainer1",
-						"type": "DatasetReference"
-					},
 					"name": "sink1"
 				}
 			],
@@ -44,21 +43,39 @@
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: true,",
-				"     limit: 100,",
-				"     ignoreNoFilesFound: false) ~> sourceSales",
+				"     limit: 100) ~> sourceSales",
+				"source(output(",
+				"          booking_id as string,",
+				"          property_id as string,",
+				"          customer_id as integer,",
+				"          owner_id as string,",
+				"          check_in_date as date,",
+				"          check_out_date as date,",
+				"          booking_date as timestamp,",
+				"          amount as double,",
+				"          currency as string,",
+				"          city as string,",
+				"          country as string,",
+				"          full_address as string,",
+				"          stay_duration as long,",
+				"          booking_year as integer,",
+				"          booking_month as integer,",
+				"          timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table',",
+				"     staged: true) ~> source1",
 				"sourceSales filter(SALES>=200) ~> filter1",
 				"filter1 aggregate(groupBy(YEAR_ID,",
 				"          MONTH_ID),",
 				"     totalSales = sum(SALES)) ~> aggregate1",
 				"aggregate1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     deletable:false,",
-				"     insertable:true,",
-				"     updateable:false,",
-				"     upsertable:false,",
-				"     format: 'document',",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     format: 'document') ~> sink1"
 			]
 		}
 	}
