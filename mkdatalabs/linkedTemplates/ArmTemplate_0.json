@@ -908,10 +908,7 @@
 						"     mapColumn(",
 						"          booking_id,",
 						"          property_id,",
-						"          customer_id,",
-						"          owner_id,",
-						"          amount,",
-						"          currency",
+						"          customer_id",
 						"     )) ~> sink1"
 					]
 				}
@@ -1032,7 +1029,8 @@
 								"datasetParameters": {
 									"source1": {},
 									"sink1": {}
-								}
+								},
+								"linkedServiceParameters": {}
 							},
 							"staging": {
 								"linkedService": {
