@@ -855,7 +855,7 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "CustomerRawData",
+								"referenceName": "BookingDataCosmos",
 								"type": "DatasetReference"
 							},
 							"name": "source1"
@@ -864,7 +864,7 @@
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "BookingFactDataSynapse",
+								"referenceName": "BookingDataCosmos",
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
@@ -875,11 +875,21 @@
 						"source(output(",
 						"          booking_id as string,",
 						"          property_id as string,",
-						"          customer_id as string",
+						"          customer_id as integer,",
+						"          owner_id as string,",
+						"          check_in_date as string,",
+						"          check_out_date as string,",
+						"          booking_date as string,",
+						"          amount as double,",
+						"          currency as string,",
+						"          property_location as (city as string, country as string),",
+						"          timestamp as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
+						"     enableChangeFeed: true,",
+						"     changeFeedStartFromTheBeginning: false,",
+						"     format: 'document') ~> source1",
 						"source1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -887,27 +897,19 @@
 						"          property_id as string,",
 						"          customer_id as integer,",
 						"          owner_id as string,",
-						"          check_in_date as date,",
-						"          check_out_date as date,",
-						"          booking_date as timestamp,",
+						"          check_in_date as string,",
+						"          check_out_date as string,",
+						"          booking_date as string,",
 						"          amount as double,",
 						"          currency as string,",
-						"          city as string,",
-						"          country as string,",
-						"          full_address as string,",
-						"          stay_duration as long,",
-						"          booking_year as integer,",
-						"          booking_month as integer,",
-						"          timestamp as timestamp",
+						"          property_location as (city as string, country as string),",
+						"          timestamp as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
-						"     upsertable:false,",
-						"     format: 'table',",
-						"     staged: true,",
-						"     allowCopyCommand: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
+						"     upsertable:true,",
+						"     format: 'document',",
 						"     mapColumn(",
 						"          booking_id,",
 						"          property_id,",
@@ -917,8 +919,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/CustomerRawData')]",
-				"[concat(variables('factoryId'), '/datasets/BookingFactDataSynapse')]"
+				"[concat(variables('factoryId'), '/datasets/BookingDataCosmos')]"
 			]
 		},
 		{
@@ -1176,10 +1177,6 @@
 								"linkedServiceParameters": {}
 							},
 							"staging": {
-								"linkedService": {
-									"referenceName": "AzureDataLakeStorage1",
-									"type": "LinkedServiceReference"
-								},
 								"folderPath": "e554dbd2-22db-49ec-8f55-47cd084d3409"
 							},
 							"compute": {
@@ -1199,8 +1196,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow2')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+				"[concat(variables('factoryId'), '/dataflows/dataflow2')]"
 			]
 		},
 		{
