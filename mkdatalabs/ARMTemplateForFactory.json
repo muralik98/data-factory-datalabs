@@ -898,7 +898,7 @@
 						"     desc(SynpaseForLookup@timestamp, true),",
 						"     broadcast: 'auto')~> LookupSynapse",
 						"LookupSynapse alterRow(insertIf(isNull(SynpaseForLookup@booking_id)),",
-						"     insertIf(not(isNull(SynpaseForLookup@booking_id)))) ~> AlterRowForUpdate",
+						"     updateIf(not(isNull(SynpaseForLookup@booking_id)))) ~> AlterRowForUpdate",
 						"AlterRowForUpdate select(mapColumn(",
 						"          booking_id = DataQualityChecks@AcceptedRecords@booking_id,",
 						"          property_id = DataQualityChecks@AcceptedRecords@property_id,",
