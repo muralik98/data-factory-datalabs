@@ -795,7 +795,20 @@
 					"firstRowAsHeader": true,
 					"quoteChar": "\""
 				},
-				"schema": []
+				"schema": [
+					{
+						"name": "booking_id",
+						"type": "String"
+					},
+					{
+						"name": "property_id",
+						"type": "String"
+					},
+					{
+						"name": "customer_id",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
@@ -1042,7 +1055,7 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "BookingDataCosmos",
+								"referenceName": "CustomerRawData",
 								"type": "DatasetReference"
 							},
 							"name": "source1"
@@ -1062,21 +1075,11 @@
 						"source(output(",
 						"          booking_id as string,",
 						"          property_id as string,",
-						"          customer_id as integer,",
-						"          owner_id as string,",
-						"          check_in_date as string,",
-						"          check_out_date as string,",
-						"          booking_date as string,",
-						"          amount as double,",
-						"          currency as string,",
-						"          property_location as (city as string, country as string),",
-						"          timestamp as string",
+						"          customer_id as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     enableChangeFeed: true,",
-						"     changeFeedStartFromTheBeginning: false,",
-						"     format: 'document') ~> source1",
+						"     ignoreNoFilesFound: false) ~> source1",
 						"source1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -1114,7 +1117,147 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/BookingDataCosmos')]",
+				"[concat(variables('factoryId'), '/datasets/CustomerRawData')]",
+				"[concat(variables('factoryId'), '/datasets/BookingFactDataSynapse')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LoadCustomerDim_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "CustomerRawData",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "UpsertSynapse",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "customer_raw_data",
+												"wildcardFileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "SqlDWSink",
+											"writeBehavior": "Upsert",
+											"upsertSettings": {
+												"keys": [
+													"customer_id"
+												],
+												"interimSchemaName": ""
+											},
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "CustomerRawData",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "BookingFactDataSynapse",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"Eachfile": {
+						"type": "String"
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/CustomerRawData')]",
 				"[concat(variables('factoryId'), '/datasets/BookingFactDataSynapse')]"
 			]
 		}
