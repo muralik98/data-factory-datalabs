@@ -6,7 +6,7 @@
 			"sources": [
 				{
 					"dataset": {
-						"referenceName": "CustomerRawData",
+						"referenceName": "BookingDataCosmos",
 						"type": "DatasetReference"
 					},
 					"name": "source1"
@@ -26,11 +26,21 @@
 				"source(output(",
 				"          booking_id as string,",
 				"          property_id as string,",
-				"          customer_id as string",
+				"          customer_id as integer,",
+				"          owner_id as string,",
+				"          check_in_date as string,",
+				"          check_out_date as string,",
+				"          booking_date as string,",
+				"          amount as double,",
+				"          currency as string,",
+				"          property_location as (city as string, country as string),",
+				"          timestamp as string",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     ignoreNoFilesFound: false) ~> source1",
+				"     enableChangeFeed: true,",
+				"     changeFeedStartFromTheBeginning: false,",
+				"     format: 'document') ~> source1",
 				"source1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
