@@ -20,10 +20,6 @@
 						"type": "DataFlowReference"
 					},
 					"staging": {
-						"linkedService": {
-							"referenceName": "AzureDataLakeStorage1",
-							"type": "LinkedServiceReference"
-						},
 						"folderPath": "e554dbd2-22db-49ec-8f55-47cd084d3409"
 					},
 					"compute": {
