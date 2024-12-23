@@ -7,10 +7,6 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "mkdatalabs"
 		},
-		"AzureSynapseAnalytics1_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'AzureSynapseAnalytics1'"
-		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://mkdatalabsairbnbpipeline.dfs.core.windows.net/"
@@ -22,10 +18,6 @@
 		"AzureSynapseAnalytics1_properties_typeProperties_database": {
 			"type": "string",
 			"defaultValue": "airbnb"
-		},
-		"AzureSynapseAnalytics1_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "mkdatalabs"
 		},
 		"CosmosDbNoSql1_properties_typeProperties_accountEndpoint": {
 			"type": "string",
@@ -64,13 +56,8 @@
 					"server": "[parameters('AzureSynapseAnalytics1_properties_typeProperties_server')]",
 					"database": "[parameters('AzureSynapseAnalytics1_properties_typeProperties_database')]",
 					"encrypt": "mandatory",
-					"trustServerCertificate": false,
-					"authenticationType": "SQL",
-					"userName": "[parameters('AzureSynapseAnalytics1_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('AzureSynapseAnalytics1_password')]"
-					}
+					"trustServerCertificate": true,
+					"authenticationType": "SystemAssignedManagedIdentity"
 				}
 			},
 			"dependsOn": []

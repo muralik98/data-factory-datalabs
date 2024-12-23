@@ -7,10 +7,6 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "mkdatalabs"
 		},
-		"AzureSynapseAnalytics1_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'AzureSynapseAnalytics1'"
-		},
 		"AzureDataLakeStorage1_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://mkdatalabsairbnbpipeline.dfs.core.windows.net/"
@@ -22,10 +18,6 @@
 		"AzureSynapseAnalytics1_properties_typeProperties_database": {
 			"type": "string",
 			"defaultValue": "airbnb"
-		},
-		"AzureSynapseAnalytics1_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "mkdatalabs"
 		},
 		"CosmosDbNoSql1_properties_typeProperties_accountEndpoint": {
 			"type": "string",
@@ -62,9 +54,6 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"AzureSynapseAnalytics1_password": {
-						"value": "[parameters('AzureSynapseAnalytics1_password')]"
-					},
 					"AzureDataLakeStorage1_properties_typeProperties_url": {
 						"value": "[parameters('AzureDataLakeStorage1_properties_typeProperties_url')]"
 					},
@@ -73,9 +62,6 @@
 					},
 					"AzureSynapseAnalytics1_properties_typeProperties_database": {
 						"value": "[parameters('AzureSynapseAnalytics1_properties_typeProperties_database')]"
-					},
-					"AzureSynapseAnalytics1_properties_typeProperties_userName": {
-						"value": "[parameters('AzureSynapseAnalytics1_properties_typeProperties_userName')]"
 					},
 					"CosmosDbNoSql1_properties_typeProperties_accountEndpoint": {
 						"value": "[parameters('CosmosDbNoSql1_properties_typeProperties_accountEndpoint')]"
